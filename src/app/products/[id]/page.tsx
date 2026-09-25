@@ -26,7 +26,10 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Incrementing this triggers a re-fetch without unmounting the component.
+  const [retryCount, setRetryCount] = useState(0);
+
   // For the image gallery
   const [activeImg, setActiveImg] = useState(0);
 
@@ -34,12 +37,16 @@ export default function ProductDetailPage({
     const controller = new AbortController();
 
     async function loadProduct() {
+      setLoading(true);
+      setError(null);
       try {
         const data = await getProductById(resolvedParams.id, controller.signal);
         setProduct(data);
-      } catch (err: any) {
-        if (err.name === "CanceledError") return;
-        setError(err.message || "Product not found");
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "CanceledError") return;
+        setError(
+          err instanceof Error ? err.message : "Product not found"
+        );
       } finally {
         setLoading(false);
       }
@@ -47,7 +54,7 @@ export default function ProductDetailPage({
 
     loadProduct();
     return () => controller.abort();
-  }, [resolvedParams.id]);
+  }, [resolvedParams.id, retryCount]);
 
   if (loading) {
     return <LoadingSpinner label="Loading product details…" size="lg" />;
@@ -72,14 +79,26 @@ export default function ProductDetailPage({
         </svg>
         <h2 className="text-2xl font-bold text-white mb-2">Product Not Found</h2>
         <p className="text-zinc-400 mb-8 max-w-md text-center">
-          We couldn't find the product you're looking for. It may have been deleted or the ID is incorrect.
+          We couldn&apos;t find the product you&apos;re looking for. It may have been deleted or the ID is
+          incorrect.
         </p>
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-colors border border-zinc-700"
-        >
-          Go Back
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setError(null);
+              setRetryCount((c) => c + 1);
+            }}
+            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
+          >
+            Retry
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-colors border border-zinc-700"
+          >
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
@@ -152,7 +171,7 @@ export default function ProductDetailPage({
           <div className="p-6 sm:p-8 flex flex-col">
             <div className="mb-2 flex items-center gap-3">
               <span className="px-2.5 py-1 rounded-full bg-zinc-800 text-xs font-medium text-zinc-300 capitalize border border-zinc-700">
-                {product.category.replace("-", " ")}
+                {product.category.replaceAll("-", " ")}
               </span>
               <div className="flex items-center gap-1 text-sm text-zinc-400">
                 <span className="text-amber-400">★</span>

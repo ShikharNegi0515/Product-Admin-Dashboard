@@ -34,7 +34,7 @@ A comprehensive, responsive admin dashboard for managing products, built with Ne
 - **Advanced Pagination:** Custom pagination logic using `skip` and `limit`, featuring page size options (10, 20, 50), page numbers, and "Showing X-Y of Z" tracking.
 - **Search & Debounce:** Search products via `/products/search?q=`. It waits 500ms after typing stops before calling the API, and immediately resets to Page 1.
 - **Sorting & Filtering:** Sort by Price, Rating, or Title, and filter by Category.
-- **Product Details:** Implemented using advanced Next.js **Intercepting Routes** to show product details in a beautiful Modal Card without losing the `/products/[id]` shareable URL link. It includes an image gallery and reviews.
+- **Product Details:** A dedicated page at `/products/[id]` with a full image gallery, description, price, stock indicator, and customer reviews grid. Invalid or deleted product IDs show a "Not Found" state with both a **Retry** button (re-fetches without navigating away) and a **Go Back** button. Requests are aborted via `AbortController` on unmount to prevent stale updates.
 - **CRUD Operations:** Add, Edit, and Delete products with a validation form and deletion confirmation popup.
 - **Robust UI States:** Comprehensive loading spinners, empty states ("No products found"), and Error/Retry boundaries.
 - **Global URL Sync:** Search, page, limit, category, and sort parameters are synced 100% with the URL (e.g., `?q=phone&page=2&category=smartphones`), making the dashboard perfectly shareable and resilient to refresh.

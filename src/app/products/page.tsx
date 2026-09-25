@@ -47,7 +47,11 @@ function ProductsDashboard() {
   // UI State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Incremented to force a re-fetch without polluting the URL.
+  // Used after a delete or save, replacing the previous _t=Date.now() hack.
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Mutate State
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
@@ -80,14 +84,14 @@ function ProductsDashboard() {
       .catch((err) => console.error("Failed to load categories", err));
   }, []);
 
-  // Fetch Products whenever URL state changes
+  // Fetch Products whenever URL state changes (or after a mutation via refreshKey)
   useEffect(() => {
     const controller = new AbortController();
-    
+
     async function loadData() {
       setLoading(true);
       setError(null);
-      
+
       try {
         const res = await fetchProducts({
           page,
@@ -98,44 +102,49 @@ function ProductsDashboard() {
           order,
           signal: controller.signal,
         });
-        
+
+        // Auto-correct an out-of-range page (e.g., ?page=999).
+        // Only redirect when products exist but the requested page exceeds the last valid one.
+        const totalPages = Math.ceil(res.total / limit) || 1;
+        if (res.total > 0 && page > totalPages) {
+          const correctedParams = new URLSearchParams(searchParams.toString());
+          correctedParams.set("page", String(totalPages));
+          router.replace(`/products?${correctedParams.toString()}`);
+          return;
+        }
+
         setProducts(res.products);
         setTotal(res.total);
-      } catch (err: any) {
-        if (err.name === "CanceledError") return; // Ignored aborts
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "CanceledError") return;
         setError("Failed to load products. Please try again.");
       } finally {
         setLoading(false);
       }
     }
-    
+
     loadData();
-    return () => controller.abort(); // Cancel stale requests
-  }, [page, limit, search, category, sortBy, order]);
+    return () => controller.abort(); // Cancel stale requests on next run
+  }, [page, limit, search, category, sortBy, order, refreshKey, router, searchParams]);
 
   // Handlers
-  const handleSearch = (q: string) => updateURL({ q, page: 1 }); // reset page on search
-  
+  // Memoised so SearchBar's debounce useEffect doesn't re-register on every render.
+  const handleSearch = useCallback(
+    (q: string) => updateURL({ q, page: 1 }),
+    [updateURL]
+  );
+
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateURL({ category: e.target.value, page: 1 });
-  };
-  
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    if (!val) {
-      updateURL({ sortBy: null, order: null });
-      return;
-    }
-    updateURL({ sortBy: val, order: "asc" }); // Simple asc toggle for demo
   };
 
   const handleDelete = async (p: Product) => {
     if (!window.confirm(`Are you sure you want to delete "${p.title}"?`)) return;
-    
+
     try {
       await deleteProduct(p.id);
-      // Trigger a re-fetch of the current page
-      updateURL({ _t: Date.now() }); // Hack to force refresh if URL hasn't changed
+      // Bump refreshKey to re-fetch the current page without touching the URL.
+      setRefreshKey((k) => k + 1);
     } catch {
       alert("Failed to delete product.");
     }
@@ -143,7 +152,8 @@ function ProductsDashboard() {
 
   const handleFormSuccess = () => {
     setFormOpen(false);
-    updateURL({ _t: Date.now() });
+    // Bump refreshKey to re-fetch the current page without touching the URL.
+    setRefreshKey((k) => k + 1);
   };
 
   return (
@@ -214,7 +224,15 @@ function ProductsDashboard() {
             return (
               <button
                 key={opt}
-                onClick={() => updateURL({ sortBy: isSelected ? null : opt.toLowerCase() })}
+                onClick={() => {
+                  if (isSelected) {
+                    // Toggle asc ↔ desc when the same sort field is clicked again
+                    updateURL({ sortBy: opt.toLowerCase(), order: order === "asc" ? "desc" : "asc" });
+                  } else {
+                    // Switch to a new sort field, always starting ascending
+                    updateURL({ sortBy: opt.toLowerCase(), order: "asc" });
+                  }
+                }}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
                   isSelected
                     ? "bg-blue-600/20 text-blue-400 border-blue-500/50"
@@ -222,6 +240,11 @@ function ProductsDashboard() {
                 }`}
               >
                 {opt}
+                {isSelected && (
+                  <span className="ml-1 font-bold">
+                    {order === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
               </button>
             );
           })}

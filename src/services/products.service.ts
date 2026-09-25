@@ -34,8 +34,18 @@ let nextFakeId = 10000;
 /**
  * Apply our local in-memory changes (additions, updates, deletions)
  * to a fresh API response so the UI reflects user actions.
+ *
+ * @param isFirstPage – locally-added products are always shown at the top of
+ *   page 1. On subsequent pages the API slice is already correct.
+ * @param limit – used to slice the merged result so a page never exceeds the
+ *   chosen page size even after prepending added items.
  */
-function applyMutations(apiProducts: Product[], totalFromApi: number) {
+function applyMutations(
+  apiProducts: Product[],
+  totalFromApi: number,
+  isFirstPage: boolean,
+  limit: number
+) {
   // Remove deleted items
   let result = apiProducts.filter((p) => !mutationOverlay.deleted.has(p.id));
 
@@ -47,17 +57,19 @@ function applyMutations(apiProducts: Product[], totalFromApi: number) {
     return p;
   });
 
-  // Prepend added items (simulating they are at the top)
   const addedArr = Array.from(mutationOverlay.added.values());
 
   // Recalculate total: Original Total - (deleted count) + (added count)
   const effectiveTotal =
     totalFromApi - mutationOverlay.deleted.size + mutationOverlay.added.size;
 
-  return {
-    products: [...addedArr, ...result],
-    total: effectiveTotal,
-  };
+  // Prepend locally-added products only on page 1 and slice to `limit` so the
+  // page never contains more rows than expected.
+  const products = isFirstPage
+    ? [...addedArr, ...result].slice(0, limit)
+    : result;
+
+  return { products, total: effectiveTotal };
 }
 
 // ── API Functions ───────────────────────────────────────────────────────────
@@ -126,7 +138,7 @@ export async function fetchProducts(
   }
 
   // Apply our local optimistic overlays
-  const { products, total } = applyMutations(apiResults, apiTotal);
+  const { products, total } = applyMutations(apiResults, apiTotal, page === 1, limit);
 
   return {
     products,

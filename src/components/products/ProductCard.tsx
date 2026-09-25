@@ -24,7 +24,7 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
         />
         {/* Category badge overlay */}
         <span className="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-900/80 text-zinc-300 backdrop-blur-sm capitalize">
-          {product.category.replace("-", " ")}
+          {product.category.replaceAll("-", " ")}
         </span>
       </div>
 

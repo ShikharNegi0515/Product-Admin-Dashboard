@@ -118,6 +118,22 @@ export default function ProductForm({
               )}
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-1">
+                Description{" "}
+                <span className="text-zinc-500 font-normal">(optional)</span>
+              </label>
+              <textarea
+                rows={3}
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder="Short product description…"
+                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white resize-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-1">

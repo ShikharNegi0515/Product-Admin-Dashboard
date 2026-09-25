@@ -53,7 +53,7 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
 
               {/* Category */}
               <td className="px-4 py-3 text-zinc-400 capitalize">
-                {product.category.replace("-", " ")}
+                {product.category.replaceAll("-", " ")}
               </td>
 
               {/* Price */}

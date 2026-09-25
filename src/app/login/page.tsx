@@ -15,6 +15,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+// `axios` is imported here solely for the `isAxiosError` static type-guard.
+// No API calls are made from this file directly — signIn() in AuthContext uses apiClient.
 import axios from "axios";
 
 export default function LoginPage() {

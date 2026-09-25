@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Product Admin Dashboard
 
-## Getting Started
+A comprehensive, responsive admin dashboard for managing products, built with Next.js (App Router), React, Tailwind CSS, and Axios. Powered by the [DummyJSON API](https://dummyjson.com).
 
-First, run the development server:
+## 🚀 Setup & Installation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/ShikharNegi0515/Product-Admin-Dashboard.git
+   cd "Product Admin Dashboard"
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Login Credentials:**
+   Open `http://localhost:3000` and use the following dummy credentials:
+   - **Username:** `emilys`
+   - **Password:** `emilyspass`
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ✅ Completed Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Authentication:** Fully functional login page (`POST /auth/login`) with client-side validation, error handling, and a global `AuthContext` to protect routes.
+- **Responsive Layout:** A clean, professional UI that renders a Data Table on desktop and a Grid of Cards on mobile devices.
+- **Advanced Pagination:** Custom pagination logic using `skip` and `limit`, featuring page size options (10, 20, 50), page numbers, and "Showing X-Y of Z" tracking.
+- **Search & Debounce:** Search products via `/products/search?q=`. It waits 500ms after typing stops before calling the API, and immediately resets to Page 1.
+- **Sorting & Filtering:** Sort by Price, Rating, or Title, and filter by Category.
+- **Product Details:** Implemented using advanced Next.js **Intercepting Routes** to show product details in a beautiful Modal Card without losing the `/products/[id]` shareable URL link. It includes an image gallery and reviews.
+- **CRUD Operations:** Add, Edit, and Delete products with a validation form and deletion confirmation popup.
+- **Robust UI States:** Comprehensive loading spinners, empty states ("No products found"), and Error/Retry boundaries.
+- **Global URL Sync:** Search, page, limit, category, and sort parameters are synced 100% with the URL (e.g., `?q=phone&page=2&category=smartphones`), making the dashboard perfectly shareable and resilient to refresh.
+- **Axios Interceptors:** A single shared Axios instance (`src/lib/axios.ts`) that automatically injects the Bearer token and globally catches `401 Unauthorized` errors to force logout.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧠 Architectural Choices & Solutions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. The Search + Category Filter Conflict
+**The Problem:** The DummyJSON API does not natively support searching (`/products/search?q=`) and filtering (`/products/category/X`) at the exact same time.
+**The Solution:** I prioritized a seamless user experience. If a user tries to use both, the app fetches a larger batch of the search results from the API, and then applies the Category filter **client-side** before paginating. This completely abstracts the API limitation away from the user.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Overcoming Fake Mutations (Add/Edit/Delete)
+**The Problem:** DummyJSON accepts `POST/PATCH/DELETE` requests but does not actually save the changes to their database.
+**The Solution:** I built an **Optimistic In-Memory Mutation Overlay** inside `products.service.ts`. When a product is added, updated, or deleted, it gets tracked in a local `Map`. Whenever the app fetches data from the API, this service intercepts the response and applies the local mutations on top of it. This ensures that the user's edits persist flawlessly as they navigate around the dashboard, without needing a complex state manager like Redux.
+
+### 3. Preventing Race Conditions & Double Submits
+**The Problem:** Fast typing can cause old search queries to resolve after new ones. Spam-clicking "Save" can trigger 10 API requests.
+**The Solution:** 
+- **Search Race Conditions:** Every fetch request in `products/page.tsx` utilizes an `AbortController`. If a new request is triggered (e.g. typing a new letter), the previous pending HTTP request is immediately aborted at the network level.
+- **Double Submits:** Forms use a `useRef(false)` flag alongside a `submitting` boolean to strictly block parallel identical requests.
+
+### 4. Why AI Was Helpful
+AI was instrumental in quickly scaffolding the boilerplate Next.js App Router setup, generating precise Tailwind CSS classes for the responsive mobile/desktop shifts, and writing the regex/string replacements when overhauling the color theme from Purple/Slate to the sleek Blue/Zinc palette. It also helped construct the complex Next.js Intercepting Routes architecture (`@modal`) to allow the Product Details page to render as a popup card while retaining a shareable URL.

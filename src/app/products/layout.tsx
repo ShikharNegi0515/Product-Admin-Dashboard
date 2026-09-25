@@ -3,8 +3,10 @@ import Navbar from "@/components/layout/Navbar";
 
 export default function ProductsLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <ProtectedRoute>
@@ -12,6 +14,7 @@ export default function ProductsLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {children}
       </main>
+      {modal}
     </ProtectedRoute>
   );
 }

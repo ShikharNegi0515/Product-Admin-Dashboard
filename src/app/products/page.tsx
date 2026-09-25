@@ -11,7 +11,7 @@
  * 3. "Show loading, empty, and error states": We manage loading/error state heavily.
  */
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Product, Category } from "@/types/product";
 import { fetchProducts, fetchCategories, deleteProduct } from "@/services/products.service";
@@ -56,6 +56,13 @@ function ProductsDashboard() {
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // Ref that always holds the latest searchParams so the fetch useEffect can
+  // read it for the page-clamp redirect WITHOUT being a reactive dependency.
+  // (useSearchParams() returns a new object reference on every render in Next.js,
+  // so putting it in the deps array would cause an infinite re-fetch loop.)
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
 
   /**
    * Sync a partial state update to the URL
@@ -104,10 +111,9 @@ function ProductsDashboard() {
         });
 
         // Auto-correct an out-of-range page (e.g., ?page=999).
-        // Only redirect when products exist but the requested page exceeds the last valid one.
         const totalPages = Math.ceil(res.total / limit) || 1;
         if (res.total > 0 && page > totalPages) {
-          const correctedParams = new URLSearchParams(searchParams.toString());
+          const correctedParams = new URLSearchParams(searchParamsRef.current.toString());
           correctedParams.set("page", String(totalPages));
           router.replace(`/products?${correctedParams.toString()}`);
           return;
@@ -115,17 +121,20 @@ function ProductsDashboard() {
 
         setProducts(res.products);
         setTotal(res.total);
+        setLoading(false); // ← only reached on success
       } catch (err: unknown) {
+        // If the request was aborted (navigation / new keystroke), do NOT touch state.
+        // Leaving loading=true prevents the empty-state flash before the next fetch starts.
         if (err instanceof Error && err.name === "CanceledError") return;
         setError("Failed to load products. Please try again.");
-      } finally {
-        setLoading(false);
+        setLoading(false); // ← only reached on a real error
       }
+      // No finally block – intentional. See comment above.
     }
 
     loadData();
     return () => controller.abort(); // Cancel stale requests on next run
-  }, [page, limit, search, category, sortBy, order, refreshKey, router, searchParams]);
+  }, [page, limit, search, category, sortBy, order, refreshKey, router]);
 
   // Handlers
   // Memoised so SearchBar's debounce useEffect doesn't re-register on every render.

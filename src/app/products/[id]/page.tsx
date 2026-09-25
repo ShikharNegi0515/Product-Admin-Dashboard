@@ -42,14 +42,15 @@ export default function ProductDetailPage({
       try {
         const data = await getProductById(resolvedParams.id, controller.signal);
         setProduct(data);
+        setLoading(false); // ← only reached on success
       } catch (err: unknown) {
+        // Aborted requests (navigation away / retry): leave state untouched so
+        // loading stays true and the "Not Found" page never flashes on screen.
         if (err instanceof Error && err.name === "CanceledError") return;
-        setError(
-          err instanceof Error ? err.message : "Product not found"
-        );
-      } finally {
-        setLoading(false);
+        setError(err instanceof Error ? err.message : "Product not found");
+        setLoading(false); // ← only reached on a real error
       }
+      // No finally block – intentional. See comment above.
     }
 
     loadProduct();

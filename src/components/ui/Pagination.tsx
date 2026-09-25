@@ -40,45 +40,49 @@ export default function Pagination({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-1">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1">
       {/* Limit selector & count */}
-      <div className="flex items-center gap-3 text-sm text-zinc-400">
+      <div className="flex items-center gap-3 text-sm text-slate-400">
         <select
           value={limit}
           onChange={(e) => {
             onLimitChange(Number(e.target.value));
           }}
-          className="bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="bg-white border border-slate-200 text-slate-700 text-xs
+                     rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500/40
+                     cursor-pointer transition-colors"
           aria-label="Items per page"
         >
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
+          <option value={10}>10 / page</option>
+          <option value={20}>20 / page</option>
+          <option value={50}>50 / page</option>
         </select>
-        <span>
+        <span className="text-xs text-slate-500">
           Showing {total === 0 ? 0 : startItem}–{endItem} of {total}
         </span>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <button
           disabled={currentPage === 1 || total === 0}
           onClick={() => onPageChange(currentPage - 1)}
-          className="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 text-sm hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-1.5 rounded-lg border border-slate-700/50 text-slate-400 text-xs
+                     hover:bg-slate-800/70 hover:text-slate-200
+                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Previous page"
         >
-          Prev
+          ← Prev
         </button>
 
         {pageNumbers.map((p) => (
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+            className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all duration-150 ${
               p === currentPage
-                ? "bg-blue-600 text-white border border-blue-500"
-                : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-transparent"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/30 border border-emerald-500/50"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
             }`}
             aria-label={`Page ${p}`}
             aria-current={p === currentPage ? "page" : undefined}
@@ -90,10 +94,12 @@ export default function Pagination({
         <button
           disabled={currentPage >= totalPages || total === 0}
           onClick={() => onPageChange(currentPage + 1)}
-          className="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 text-sm hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-1.5 rounded-lg border border-slate-700/50 text-slate-400 text-xs
+                     hover:bg-slate-800/70 hover:text-slate-200
+                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Next page"
         >
-          Next
+          Next →
         </button>
       </div>
     </div>

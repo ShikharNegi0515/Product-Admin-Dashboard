@@ -65,7 +65,10 @@ export default function SearchBar({
         placeholder={placeholder}
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+        className="w-full pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200
+                   text-slate-800 placeholder-slate-400 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/30
+                   transition-all duration-200"
       />
     </div>
   );

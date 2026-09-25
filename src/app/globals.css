@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   html {
@@ -12,13 +12,19 @@
   }
 
   body {
-    @apply bg-zinc-950 text-zinc-200 min-h-screen;
+    min-height: 100vh;
+    /* Bright, clean white/slate-50 base with a subtle sky blue aurora at the top */
+    background-color: #f8fafc; /* slate-50 */
+    background-image:
+      radial-gradient(ellipse 90% 55% at 50% -15%, rgba(16, 185, 129, 0.08) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 35% at 85% 95%, rgba(20, 184, 166, 0.05) 0%, transparent 55%);
+    color: #0f172a; /* slate-900 */
   }
 
   *,
   *::before,
   *::after {
-    @apply box-border;
+    box-sizing: border-box;
   }
 }
 
@@ -45,33 +51,47 @@
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fadeIn   { animation: fadeIn  0.2s ease-out forwards; }
-.animate-scaleIn  { animation: scaleIn 0.2s ease-out forwards; }
-.animate-slideUp  { animation: slideUp 0.3s ease-out forwards; }
+/* Gentle levitation used on decorative background blobs */
+@keyframes float {
+  0%,  100% { transform: translateY(0px)   scale(1); }
+  50%        { transform: translateY(-18px) scale(1.03); }
+}
 
-/* Staggered card animation for product grid */
-.product-grid > *:nth-child(1)  { animation-delay: 0ms; }
-.product-grid > *:nth-child(2)  { animation-delay: 50ms; }
-.product-grid > *:nth-child(3)  { animation-delay: 100ms; }
-.product-grid > *:nth-child(4)  { animation-delay: 150ms; }
-.product-grid > *:nth-child(5)  { animation-delay: 200ms; }
-.product-grid > *:nth-child(6)  { animation-delay: 250ms; }
-.product-grid > *:nth-child(7)  { animation-delay: 300ms; }
-.product-grid > *:nth-child(8)  { animation-delay: 350ms; }
-.product-grid > *:nth-child(9)  { animation-delay: 400ms; }
-.product-grid > *:nth-child(10) { animation-delay: 450ms; }
+/* Slow rotation for decorative rings */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
-/* Scrollbar styling */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: #3f3f46; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #52525b; }
+.animate-fadeIn    { animation: fadeIn  0.25s ease-out                         forwards; }
+.animate-scaleIn   { animation: scaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1)  forwards; }
+.animate-slideUp   { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1)  forwards; }
+.animate-float     { animation: float   7s   ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 20s linear infinite; }
+
+/* Staggered entrance for product cards */
+.product-grid > *:nth-child(1)  { animation: slideUp 0.35s  0ms  cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(2)  { animation: slideUp 0.35s  60ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(3)  { animation: slideUp 0.35s 120ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(4)  { animation: slideUp 0.35s 180ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(5)  { animation: slideUp 0.35s 240ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(6)  { animation: slideUp 0.35s 300ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(7)  { animation: slideUp 0.35s 360ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(8)  { animation: slideUp 0.35s 420ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(9)  { animation: slideUp 0.35s 480ms cubic-bezier(0.16,1,0.3,1) both; }
+.product-grid > *:nth-child(10) { animation: slideUp 0.35s 540ms cubic-bezier(0.16,1,0.3,1) both; }
+
+/* Scrollbar — emerald tinted */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: rgba(16, 185, 129, 0.25); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover  { background: rgba(16, 185, 129, 0.45); }

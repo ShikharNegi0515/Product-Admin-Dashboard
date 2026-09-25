@@ -167,11 +167,13 @@ function ProductsDashboard() {
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Header */}
+      {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Products</h1>
-          <p className="text-sm text-zinc-400 mt-0.5">
+          <h1 className="text-2xl font-bold text-slate-900">
+            Products
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
             Manage your product catalog
           </p>
         </div>
@@ -181,17 +183,21 @@ function ProductsDashboard() {
             setEditingProduct(null);
             setFormOpen(true);
           }}
-          className="flex items-center gap-2 p-2 sm:px-4 sm:py-2 rounded-lg bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white text-sm font-semibold transition-all shadow-lg shadow-blue-500/20"
+          className="flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-xl
+                     bg-gradient-to-r from-emerald-500 to-teal-400
+                     hover:from-emerald-400 hover:to-teal-300
+                     text-white text-sm font-semibold transition-all duration-200
+                     shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
         >
-          <svg className="w-5 h-5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           <span className="hidden sm:inline">Add Product</span>
         </button>
       </div>
 
-      {/* Filters bar */}
-      <div className="rounded-xl bg-zinc-900/60 border border-zinc-700/60 p-4 space-y-4">
+      {/* ── Filters bar ──────────────────────────────────────────────── */}
+      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 space-y-3.5">
         {/* Search + Category */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 w-full">
@@ -202,7 +208,9 @@ function ProductsDashboard() {
             <select
               value={category}
               onChange={handleCategoryChange}
-              className="flex-1 sm:flex-none px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-slate-50 border border-slate-200
+                         text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40
+                         focus:border-emerald-500/30 transition-all min-w-[140px] cursor-pointer"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -215,7 +223,8 @@ function ProductsDashboard() {
             {(search || category || sortBy) && (
               <button
                 onClick={() => updateURL({ q: null, category: null, sortBy: null, order: null, page: 1 })}
-                className="px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 border border-zinc-700 hover:bg-zinc-700 transition-colors whitespace-nowrap"
+                className="px-3 py-2 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-700
+                           border border-slate-200 hover:bg-slate-50 transition-colors whitespace-nowrap"
               >
                 Clear all
               </button>
@@ -223,9 +232,9 @@ function ProductsDashboard() {
           </div>
         </div>
 
-        {/* Sort */}
+        {/* Sort pills */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
             Sort by:
           </span>
           {["Price", "Rating", "Title"].map((opt) => {
@@ -235,24 +244,20 @@ function ProductsDashboard() {
                 key={opt}
                 onClick={() => {
                   if (isSelected) {
-                    // Toggle asc ↔ desc when the same sort field is clicked again
                     updateURL({ sortBy: opt.toLowerCase(), order: order === "asc" ? "desc" : "asc" });
                   } else {
-                    // Switch to a new sort field, always starting ascending
                     updateURL({ sortBy: opt.toLowerCase(), order: "asc" });
                   }
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${
                   isSelected
-                    ? "bg-blue-600/20 text-blue-400 border-blue-500/50"
-                    : "bg-zinc-800/50 text-zinc-400 border-zinc-700 hover:border-zinc-600"
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm"
+                    : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700"
                 }`}
               >
                 {opt}
                 {isSelected && (
-                  <span className="ml-1 font-bold">
-                    {order === "asc" ? "↑" : "↓"}
-                  </span>
+                  <span className="ml-1 font-bold">{order === "asc" ? "↑" : "↓"}</span>
                 )}
               </button>
             );
@@ -260,14 +265,24 @@ function ProductsDashboard() {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* ── Main Content ──────────────────────────────────────────────── */}
       <div className="min-h-[400px]">
         {error ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-red-400 mb-4">{error}</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20
+                            flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732
+                     4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-slate-700 font-medium mb-1">Something went wrong</p>
+            <p className="text-sm text-slate-500 mb-5">{error}</p>
             <button
-              onClick={() => updateURL({ _t: Date.now() })}
-              className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white transition-colors"
+              onClick={() => setRefreshKey((k) => k + 1)}
+              className="px-5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700
+                         text-sm font-medium transition-colors border border-slate-200 shadow-sm"
             >
               Retry
             </button>
@@ -275,16 +290,20 @@ function ProductsDashboard() {
         ) : loading ? (
           <LoadingSpinner label="Loading products…" />
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-            <svg className="w-16 h-16 mb-4 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-            <p className="text-lg font-medium text-zinc-300">No products found</p>
-            <p className="text-sm mt-1">Try adjusting your search or filters.</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-slate-100 border border-slate-200
+                            flex items-center justify-center mb-5">
+              <svg className="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+            </div>
+            <p className="text-lg font-semibold text-slate-700">No products found</p>
+            <p className="text-sm text-slate-500 mt-1">Try adjusting your search or filters.</p>
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
+            {/* Desktop Table */}
             <div className="hidden sm:block">
               <ProductTable
                 products={products}
@@ -296,8 +315,8 @@ function ProductsDashboard() {
                 onDelete={handleDelete}
               />
             </div>
-            
-            {/* Mobile Cards View */}
+
+            {/* Mobile Cards */}
             <div className="sm:hidden grid grid-cols-1 gap-4 product-grid">
               {products.map((p) => (
                 <ProductCard
@@ -312,9 +331,9 @@ function ProductsDashboard() {
                 />
               ))}
             </div>
-            
+
             {/* Pagination */}
-            <div className="mt-6 border-t border-zinc-700/60 pt-4">
+            <div className="mt-6 border-t border-slate-200 pt-4">
               <Pagination
                 currentPage={page}
                 limit={limit}
